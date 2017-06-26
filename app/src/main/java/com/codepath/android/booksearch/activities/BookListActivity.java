@@ -75,8 +75,7 @@ public class BookListActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Fetch the data remotely
-        fetchBooks("John Steinbeck");
-
+        fetchBooks("Harry Potter");
     }
 
     // Executes an API call to the OpenLibrary search endpoint, parses the results

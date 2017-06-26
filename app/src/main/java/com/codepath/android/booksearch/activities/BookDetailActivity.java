@@ -57,9 +57,8 @@ public class BookDetailActivity extends AppCompatActivity {
 
         // Extract book object from intent extras
         Book selectedBook = (Book) getIntent().getParcelableExtra("book");
-        Toast.makeText(BookDetailActivity.this, "Book is " + selectedBook.getTitle(), Toast.LENGTH_LONG).show();
 
-        // Use book object to populate data into views
+         // Use book object to populate data into views
         ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvAuthor = (TextView) findViewById(R.id.tvAuthor);
@@ -70,15 +69,16 @@ public class BookDetailActivity extends AppCompatActivity {
         tvPubDate.setText(selectedBook.getPubDate());
         mTitle.setText(selectedBook.getTitle());
 
-     //    populating image
 //        Glide.with(this)
 //                .load(Uri.parse(selectedBook.getCoverUrl()))
 //                .placeholder(R.drawable.ic_nocover)
 //                .into(ivBookCover);
 
+
         Glide.with(BookDetailActivity.this).load(selectedBook.getCoverUrl()).listener(new RequestListener<String, GlideDrawable>() {
             @Override
             public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                Toast.makeText(BookDetailActivity.this, "failed to load image", Toast.LENGTH_SHORT).show();
                 return false;
             }
 
@@ -86,6 +86,7 @@ public class BookDetailActivity extends AppCompatActivity {
             public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
                 prepareShareIntent();
                 attachShareIntentAction();
+                Toast.makeText(BookDetailActivity.this, "success in image loading", Toast.LENGTH_SHORT).show();
                 return true;
             }
         }).into(ivBookCover);
@@ -117,6 +118,7 @@ public class BookDetailActivity extends AppCompatActivity {
             return true;
         }
 
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -124,11 +126,12 @@ public class BookDetailActivity extends AppCompatActivity {
     // Gets the image URI and setup the associated share intent to hook into the provider
     public void prepareShareIntent() {
         // Fetch Bitmap Uri locally
-        ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
-        Uri bmpUri = getLocalBitmapUri(ivImage); // see previous remote images section
+       // ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
+        Uri bmpUri = getLocalBitmapUri(ivBookCover); // see previous remote images section
         // Construct share intent as described above based on bitmap
         shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra("title", "BOOK TITLE");
         shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
         shareIntent.setType("image/*");
     }
@@ -143,9 +146,9 @@ public class BookDetailActivity extends AppCompatActivity {
     // Can be triggered by a view event such as a button press
     public void onShareItem(View v) {
         // Get access to bitmap image from view
-        ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
+    //    ImageView ivImage = (ImageView) findViewById(R.id.ivBookCover);
         // Get access to the URI for the bitmap
-        Uri bmpUri = getLocalBitmapUri(ivImage);
+        Uri bmpUri = getLocalBitmapUri(ivBookCover);
         if (bmpUri != null) {
             // Construct a ShareIntent with link to image
             Intent shareIntent = new Intent();
