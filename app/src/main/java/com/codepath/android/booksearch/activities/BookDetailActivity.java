@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.FileProvider;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
@@ -75,25 +76,19 @@ public class BookDetailActivity extends AppCompatActivity {
 //                .placeholder(R.drawable.ic_nocover)
 //                .into(ivBookCover);
 
-        Glide.with(this).load(selectedBook.getCoverUrl())
-                .listener(new RequestListener<Uri, GlideDrawable>() {
-                              @Override
-                              public boolean onException(Exception e, Uri model, Target<GlideDrawable> target, boolean isFirstResource) {
-                                  return false;
-                              }
+        Glide.with(BookDetailActivity.this).load(selectedBook.getCoverUrl()).listener(new RequestListener<String, GlideDrawable>() {
+            @Override
+            public boolean onException(Exception e, String model, Target<GlideDrawable> target, boolean isFirstResource) {
+                return false;
+            }
 
-                              @Override
-                              public boolean onResourceReady(GlideDrawable resource, Uri model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                                  prepareShareIntent();
-                                  attachShareIntentAction();
-                                  return true;
-                              }
-                          }
-                )
-                .into(ivBookCover);
-
-
-
+            @Override
+            public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
+                prepareShareIntent();
+                attachShareIntentAction();
+                return true;
+            }
+        }).into(ivBookCover);
     }
 
 
@@ -180,7 +175,15 @@ public class BookDetailActivity extends AppCompatActivity {
             // Use methods on Context to access package-specific directories on external storage.
             // This way, you don't need to request external read/write permission.
             // See https://youtu.be/5xVh-7ywKpE?t=25m25s
-            File file =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+           // File file =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+
+            // Adding this code from CP guide
+            // getExternalFilesDir() + "/Pictures" should match the declaration in fileprovider.xml paths
+            File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
+
+            // wrap File object into a content provider. NOTE: authority here should match authority in manifest declaration
+            bmpUri = FileProvider.getUriForFile(BookDetailActivity.this, "com.codepath.fileprovider", file);
+
             FileOutputStream out = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
