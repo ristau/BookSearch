@@ -72,7 +72,7 @@ public class BookListActivity extends AppCompatActivity {
         // setting up the toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Fetch the data remotely
         fetchBooks("John Steinbeck");
