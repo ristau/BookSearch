@@ -1,5 +1,7 @@
 package com.codepath.android.booksearch.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
 
 import org.json.JSONArray;
@@ -8,10 +10,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 
-public class Book {
+public class Book implements Parcelable {
     private String openLibraryId;
     private String author;
     private String title;
+    private String pubDate;
 
     public String getOpenLibraryId() {
         return openLibraryId;
@@ -23,6 +26,10 @@ public class Book {
 
     public String getAuthor() {
         return author;
+    }
+
+    public String getPubDate() {
+        return pubDate;
     }
 
     // Get book cover from covers API
@@ -44,6 +51,8 @@ public class Book {
             }
             book.title = jsonObject.has("title_suggest") ? jsonObject.getString("title_suggest") : "";
             book.author = getAuthor(jsonObject);
+            book.pubDate = getPublicationDate(jsonObject);
+
         } catch (JSONException e) {
             e.printStackTrace();
             return null;
@@ -62,6 +71,17 @@ public class Book {
                 authorStrings[i] = authors.getString(i);
             }
             return TextUtils.join(", ", authorStrings);
+        } catch (JSONException e) {
+            return "";
+        }
+    }
+
+    // returns the first publication date
+    private static String getPublicationDate(final JSONObject jsonObect) {
+
+        try {
+            final JSONArray dates = jsonObect.getJSONArray("publish_date");
+            return dates.get(0).toString();
         } catch (JSONException e) {
             return "";
         }
@@ -87,4 +107,48 @@ public class Book {
         }
         return books;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(openLibraryId);
+        dest.writeString(author);
+        dest.writeString(title);
+        dest.writeString(pubDate);
+    }
+
+    private Book(Parcel in){
+        openLibraryId = in.readString();
+        author = in.readString();
+        title = in.readString();
+        pubDate = in.readString();
+    }
+
+    public Book(){
+
+    }
+
+    public static final Parcelable.Creator<Book> CREATOR
+            = new Parcelable.Creator<Book>() {
+
+        // This simply calls our new constructor (typically private) and
+        // passes along the unmarshalled `Parcel`, and then returns the new object!
+        @Override
+        public Book createFromParcel(Parcel in) {
+            return new Book(in);
+        }
+
+        // We just need to copy this and change the type to match our class.
+        @Override
+        public Book[] newArray(int size) {
+            return new Book[size];
+        }
+    };
+
+
+
 }

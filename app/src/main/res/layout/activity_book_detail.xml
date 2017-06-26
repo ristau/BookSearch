@@ -7,24 +7,39 @@
 
     <ImageView
         android:id="@+id/ivBookCover"
+        android:layout_width="match_parent"
+        android:layout_height="280dp"
         android:layout_marginTop="8dp"
-        android:layout_width="280dp"
-        android:layout_height="280dp" />
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"/>
 
     <TextView
         android:id="@+id/tvTitle"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="32sp"
         android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
         android:paddingLeft="10dp"
-        android:paddingRight="10dp" />
+        android:paddingRight="10dp"
+        android:text="Title"
+        android:textAlignment="center"
+        android:textSize="32sp" />
 
     <TextView
         android:id="@+id/tvAuthor"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="22sp"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="8dp"
+        android:gravity="center_horizontal"
+        android:text="author"
+        android:textSize="22sp" />
+
+    <TextView
+        android:id="@+id/tvPubDate"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:text="2004"
+        android:textAlignment="center" />
 
 </LinearLayout>

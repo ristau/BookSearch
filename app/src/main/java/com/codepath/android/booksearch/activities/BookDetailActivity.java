@@ -6,13 +6,16 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.codepath.android.booksearch.R;
+import com.codepath.android.booksearch.models.Book;
 
 public class BookDetailActivity extends AppCompatActivity {
     private ImageView ivBookCover;
     private TextView tvTitle;
     private TextView tvAuthor;
+    private TextView tvPubDate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,8 +27,18 @@ public class BookDetailActivity extends AppCompatActivity {
         tvAuthor = (TextView) findViewById(R.id.tvAuthor);
 
         // Extract book object from intent extras
+        Book selectedBook = (Book) getIntent().getParcelableExtra("book");
+        Toast.makeText(BookDetailActivity.this, "Book is " + selectedBook.getTitle(), Toast.LENGTH_LONG).show();
 
         // Use book object to populate data into views
+        ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
+        tvTitle = (TextView) findViewById(R.id.tvTitle);
+        tvAuthor = (TextView) findViewById(R.id.tvAuthor);
+        tvPubDate = (TextView) findViewById(R.id.tvPubDate);
+
+        tvTitle.setText(selectedBook.getTitle());
+        tvAuthor.setText(selectedBook.getAuthor());
+        tvPubDate.setText(selectedBook.getPubDate());
     }
 
 
