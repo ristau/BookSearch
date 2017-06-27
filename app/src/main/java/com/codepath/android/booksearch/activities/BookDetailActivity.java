@@ -2,8 +2,6 @@ package com.codepath.android.booksearch.activities;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -18,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.GlideBitmapDrawable;
 import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
@@ -30,7 +29,6 @@ import java.io.IOException;
 
 public class BookDetailActivity extends AppCompatActivity {
 
-    private ImageView ivBookCover;
     private TextView tvTitle;
     private TextView tvAuthor;
     private TextView tvPubDate;
@@ -49,7 +47,7 @@ public class BookDetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowTitleEnabled(false);
 
         // Fetch views
-        ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
+        ImageView ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvAuthor = (TextView) findViewById(R.id.tvAuthor);
         mTitle = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -57,7 +55,7 @@ public class BookDetailActivity extends AppCompatActivity {
         // Extract book object from intent extras
         Book selectedBook = (Book) getIntent().getParcelableExtra("book");
 
-         // Use book object to populate data into views
+        // Use book object to populate data into views
         ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
         tvTitle = (TextView) findViewById(R.id.tvTitle);
         tvAuthor = (TextView) findViewById(R.id.tvAuthor);
@@ -74,7 +72,7 @@ public class BookDetailActivity extends AppCompatActivity {
 //                .into(ivBookCover);
 
         // clear image resource
-      //  ivBookCover.setImageResource(0);
+        ivBookCover.setImageResource(0);
 
         Glide.with(BookDetailActivity.this).load(selectedBook.getCoverUrl()).listener(new RequestListener<String, GlideDrawable>() {
 
@@ -86,14 +84,14 @@ public class BookDetailActivity extends AppCompatActivity {
 
             @Override
             public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target, boolean isFromMemoryCache, boolean isFirstResource) {
-                prepareShareIntent();
+                prepareShareIntent(((GlideBitmapDrawable) resource).getBitmap());
                 attachShareIntentAction();
                 Toast.makeText(BookDetailActivity.this, "success in image loading", Toast.LENGTH_SHORT).show();
                 return false;
-                }
             }
-        ).into(ivBookCover);
-   }
+        }).into(ivBookCover);
+
+    }
 
 
 
@@ -121,21 +119,22 @@ public class BookDetailActivity extends AppCompatActivity {
             return true;
         }
 
+
         return super.onOptionsItemSelected(item);
     }
 
 
     // Gets the image URI and setup the associated share intent to hook into the provider
-    public void prepareShareIntent() {
+    public void prepareShareIntent(Bitmap drawableImage) {
         // Fetch Bitmap Uri locally
-      //  ImageView ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
-        Uri bmpUri = getLocalBitmapUri(ivBookCover); // see previous remote images section
+        ImageView ivBookCover = (ImageView) findViewById(R.id.ivBookCover);
+        Uri bmpUri = getBitmapFromDrawable(drawableImage); // see previous remote images section
         // Construct share intent as described above based on bitmap
         shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, tvTitle.getText());
+        shareIntent.putExtra("title", "BOOK TITLE");
         shareIntent.putExtra(Intent.EXTRA_STREAM, bmpUri);
-        shareIntent.setType("*/*");
+        shareIntent.setType("image/*");
     }
 
     // Attaches the share intent to the share menu item provider
@@ -147,52 +146,20 @@ public class BookDetailActivity extends AppCompatActivity {
 
 
     // Returns the URI path to the Bitmap displayed in specified ImageView
-    public Uri getLocalBitmapUri(ImageView imageView) {
-        // Extract Bitmap from ImageView drawable
-        Drawable drawable = imageView.getDrawable();
-        Bitmap bmp = null;
-        if (drawable instanceof BitmapDrawable){
-            bmp = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-        } else {
-            return null;
-        }
+    public Uri getBitmapFromDrawable(Bitmap bmp) {
         // Store image to default external storage directory
         Uri bmpUri = null;
         try {
-
             File file =  new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
             FileOutputStream out = new FileOutputStream(file);
             bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
             out.close();
-            // **Warning:** This will fail for API >= 24, use a FileProvider as shown below instead.
             bmpUri = Uri.fromFile(file);
-
-            // Use methods on Context to access package-specific directories on external storage.
-            // This way, you don't need to request external read/write permission.
-            // See https://youtu.be/5xVh-7ywKpE?t=25m25s
-
-            // getExternalFilesDir() + "/Pictures" should match the declaration in fileprovider.xml paths
-          //  File file = new File(getExternalFilesDir(Environment.DIRECTORY_PICTURES), "share_image_" + System.currentTimeMillis() + ".png");
-
-            // wrap File object into a content provider. NOTE: authority here should match authority in manifest declaration
-          //  bmpUri = FileProvider.getUriForFile(BookDetailActivity.this, "com.codepath.fileprovider", file);
-
-          //  FileOutputStream out = new FileOutputStream(file);
-          //  bmp.compress(Bitmap.CompressFormat.PNG, 90, out);
-          //  out.close();
-            // **Warning:** This will fail for API >= 24, use a FileProvider as shown below instead.
-
-            // wrap File object into a content provider. NOTE: authority here should match authority in manifest declaration
-          //  bmpUri = FileProvider.getUriForFile(BookDetailActivity.this, "com.codepath.fileprovider", file);
-
-//            bmpUri = Uri.fromFile(file);
+            return bmpUri;
         } catch (IOException e) {
             e.printStackTrace();
         }
         return bmpUri;
     }
-
-
-
 
 }
